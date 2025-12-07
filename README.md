@@ -20,7 +20,7 @@ Bu, HTML, CSS ve JavaScript kullanılarak geliştirilmiş, reflekslere dayalı e
 ## Oyunu Hemen Deneyin
 
 Oyunun canlı versiyonunu aşağıdaki linkten oynayabilirsiniz (GitHub Pages):
-[BURAYA GITHUB PAGES LİNKİNİZ GELECEK] 
+(https://nisanurmalkoc.github.io/FlyBird-M-TH-UYUMLU/)
 
 ##  Kurulum ve Çalıştırma
 

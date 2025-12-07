@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>FlyBird MÜTHİŞ & UYUMLU</title>
+<style>
+body {
+    margin: 0;
+    background: #4682B4; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+}
+
+#container {
+    width: 450px;
+    height: 700px;
+    position: relative;
+    border: 6px solid #191970;
+    background: #B0E0E6; 
+    overflow: hidden;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Bulutlar */
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 10px 10px 5px rgba(0, 0, 0, 0.1);
+    opacity: 0.7;
+    animation: moveCloud 30s linear infinite;
+    z-index: 1;
+}
+.cloud:nth-child(1) { width: 80px; height: 30px; top: 70px; left: -100px; transform: scale(1.5); animation-delay: 0s; }
+.cloud:nth-child(2) { width: 50px; height: 20px; top: 150px; left: -200px; transform: scale(1.0); animation-delay: 10s; }
+.cloud:nth-child(3) { width: 100px; height: 40px; top: 40px; left: -300px; transform: scale(2.0); animation-delay: 20s; }
+
+@keyframes moveCloud { 0% { left: -300px; } 100% { left: 500px; } }
+
+/* Menü */
+.screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.8);
+    z-index: 10;
+    border-radius: 25px; 
+    padding: 30px; 
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+h1.title {
+    color: #87CEFA; 
+    font-size: 60px;
+    margin-bottom: 50px;
+    text-shadow: 4px 4px 8px #1E90FF;
+    letter-spacing: 3px;
+    animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+button {
+    padding: 15px 30px;
+    font-size: 20px;
+    margin: 8px; 
+    cursor: pointer;
+    border: 3px solid #E0FFFF; 
+    outline: none;
+    border-radius: 12px; 
+    background: linear-gradient(145deg, #1E90FF, #87CEFA); 
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+button:hover {
+    background: linear-gradient(145deg, #00BFFF, #4169E1);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.6);
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    border-color: #00BFFF;
+}
+
+.colorSelect {
+    width: 40px;
+    height: 40px;
+    margin: 8px;
+    border: 4px solid #87CEFA; 
+    border-radius: 50%;
+    opacity: 0.9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s;
+}
+
+/* Oyun Alanı */
+#game {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #ADD8E6; 
+    overflow: hidden;
+    border-radius: 25px; 
+}
+
+#bird {
+    width: 26px;
+    height: 26px;
+    position: absolute;
+    top: 300px; 
+    left: 80px;
+    margin-left: -13px;
+    margin-top: -13px;
+    transition: transform 0.05s linear;
+    z-index: 5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); 
+}
+
+.pipe {
+    width: 60px;
+    position: absolute;
+    right: -60px;
+    border-radius: 15px;
+    z-index: 3;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+#score-display {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); 
+    z-index: 8;
+    background: rgba(255,255,255,0.9);
+    padding: 8px 25px;
+    border-radius: 15px;
+    border: 2px solid #87CEFA;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#score { font-size: 36px; color: #191970; font-weight: 900; }
+#level { font-size: 16px; color: #1E90FF; font-weight: bold; margin-top: -5px; }
+</style>
+</head>
+<body>
+<div id="container">
+
+    <div id="clouds">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <div id="welcomeScreen" class="screen">
+        <h1 class="title">FLY BIRD</h1>
+        <button id="startBtn">Oyuna Başla</button>
+    </div>
+
+    <div id="customScreen" class="screen" style="display:none;">
+        <h2>Şekil Seç</h2>
+        <div>
+            <button class="shapeSelect" data-shape="circle">Yuvarlak</button>
+            <button class="shapeSelect" data-shape="square">Kare</button>
+            <button class="shapeSelect" data-shape="triangle">Üçgen</button>
+            <button class="shapeSelect" data-shape="heart">Kalp</button>
+            <button class="shapeSelect" data-shape="semicircle">Yarım Daire</button>
+            <button class="shapeSelect" data-shape="star">Yıldız</button>
+        </div>
+        <h2>Renk Seç</h2>
+        <div>
+            <button class="colorSelect" data-color="yellow" style="background:yellow;"></button>
+            <button class="colorSelect" data-color="red" style="background:red;"></button>
+            <button class="colorSelect" data-color="green" style="background:green;"></button>
+            <button class="colorSelect" data-color="blue" style="background:blue;"></button>
+            <button class="colorSelect" data-color="purple" style="background:purple;"></button>
+            <button class="colorSelect" data-color="orange" style="background:orange;"></button>
+            <button class="colorSelect" data-color="pink" style="background:pink;"></button>
+            <button class="colorSelect" data-color="brown" style="background:brown;"></button>
+            <button class="colorSelect" data-color="cyan" style="background:cyan;"></button>
+            <button class="colorSelect" data-color="white" style="background:white;"></button>
+        </div>
+        <button id="playBtn" style="margin-top:20px;">Oyuna Başla</button>
+    </div>
+
+    <div id="game" style="display:none;">
+        <div id="score-display">
+            <span id="score">0</span>
+            <span id="level">Seviye 1</span>
+        </div>
+        <div id="bird"></div>
+    </div>
+
+    <div id="gameOverScreen" class="screen" style="display:none;">
+        <h1 style="color:#87CEFA;">OYUN BİTTİ!</h1>
+        <h2 id="finalScore" style="color:white; font-size:30px; text-shadow:2px 2px #1E90FF;"></h2>
+        <button id="restartBtn">Yeniden Başla</button>
+        <button id="homeBtn">Ana Sayfaya Dön</button>
+    </div>
+
+</div>
+
+<script>
+let bird = document.getElementById("bird");
+let scoreText = document.getElementById("score");
+let levelText = document.getElementById("level");
+let gameContainer = document.getElementById("game");
+
+let birdY = 300; 
+let velocity = 0;
+let gravity = 0.35;
+let jumpStrength = -7;
+let score = 0;
+let currentLevel = 1;
+let gameInterval, pipeInterval;
+let pipeSpeed = 2.2; 
+const pipeSpeedIncrement = 0.8; 
+
+let selectedShape = "circle";
+let selectedColor = "yellow";
+
+document.getElementById("startBtn").onclick = () => {
+    document.getElementById("welcomeScreen").style.display = "none";
+    document.getElementById("customScreen").style.display = "flex";
+};
+
+document.querySelectorAll(".shapeSelect").forEach(btn => btn.onclick = () => selectedShape = btn.dataset.shape);
+document.querySelectorAll(".colorSelect").forEach(btn => btn.onclick = () => selectedColor = btn.dataset.color);
+
+document.getElementById("playBtn").onclick = () => {
+    document.getElementById("customScreen").style.display = "none";
+    startGame();
+};
+
+document.getElementById("restartBtn").onclick = () => {
+    document.getElementById("gameOverScreen").style.display = "none";
+    startGame();
+};
+
+document.getElementById("homeBtn").onclick = () => {
+    document.getElementById("gameOverScreen").style.display = "none";
+    document.getElementById("customScreen").style.display = "flex";
+};
+
+function startGame() {
+    document.getElementById("game").style.display = "block";
+    birdY = 300;
+    velocity = 0;
+    score = 0;
+    currentLevel = 1;
+    pipeSpeed = 2.2; 
+    
+    scoreText.textContent = score;
+    levelText.textContent = `Seviye ${currentLevel}`;
+
+    bird.className = "";
+    bird.style.background = selectedColor;
+    bird.style.width = "26px";
+    bird.style.height = "26px";
+    bird.style.borderRadius = "0";
+    bird.innerHTML = "";
+    bird.style.border = "none";
+    bird.style.transform = "none";
+
+    if(selectedShape === "circle") bird.style.borderRadius = "50%";
+    else if(selectedShape === "square") bird.style.borderRadius = "0";
+    else if(selectedShape === "triangle") {
+        bird.style.width = "0";
+        bird.style.height = "0";
+        bird.style.borderLeft = "13px solid transparent";
+        bird.style.borderRight = "13px solid transparent";
+        bird.style.borderBottom = `26px solid ${selectedColor}`;
+        bird.style.background = "none";
+    } else if(selectedShape === "heart") {
+        bird.style.width = "26px";
+        bird.style.height = "26px";
+        bird.style.background = selectedColor;
+        bird.style.position = "relative";
+        bird.style.transform = "rotate(-45deg)";
+        bird.innerHTML = `
+            <div style="width:26px; height:26px; background:${selectedColor}; border-radius:50%; position:absolute; top:-13px; left:0;"></div>
+            <div style="width:26px; height:26px; background:${selectedColor}; border-radius:50%; position:absolute; top:0; left:13px;"></div>
+        `;
+    } else if(selectedShape === "semicircle") {
+        bird.style.width = "26px";
+        bird.style.height = "13px"; 
+        bird.style.background = selectedColor;
+        bird.style.borderRadius = "26px 26px 0 0";
+    } else if(selectedShape === "star") {
+        bird.style.width = "26px";
+        bird.style.height = "26px";
+        bird.style.background = selectedColor;
+        bird.style.position = "relative";
+        bird.style.clipPath = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
+    }
+
+    document.body.onkeydown = () => { velocity = jumpStrength; };
+    pipeInterval = setInterval(createPipes, 2100);
+    gameInterval = setInterval(updateGame, 20);
+}
+
+function createPipes() {
+    let gap = 160;
+    let maxTopHeight = 700 - 80 - gap; 
+    let topHeight = Math.random() * (maxTopHeight - 80) + 80;
+    let bottomHeight = 700 - topHeight - gap; 
+    
+    // Rastgele renk
+    let color = `rgb(${Math.floor(Math.random()*256)},${Math.floor(Math.random()*256)},${Math.floor(Math.random()*256)})`;
+
+    let topPipe = document.createElement("div");
+    topPipe.className = "pipe";
+    topPipe.style.height = topHeight + "px";
+    topPipe.style.top = "0";
+    topPipe.style.background = color;
+    topPipe.scored = false;
+
+    let bottomPipe = document.createElement("div");
+    bottomPipe.className = "pipe";
+    bottomPipe.style.height = bottomHeight + "px";
+    bottomPipe.style.bottom = "0";
+    bottomPipe.style.background = color;
+
+    gameContainer.appendChild(topPipe);
+    gameContainer.appendChild(bottomPipe);
+
+    let pipeX = 450; 
+    let move = setInterval(() => {
+        pipeX -= pipeSpeed;
+        topPipe.style.left = pipeX + "px";
+        bottomPipe.style.left = pipeX + "px";
+
+        let birdTop = birdY + 3;
+        let birdBottom = birdY + 23;
+        if(pipeX < 110 && pipeX > 40 && (birdTop < topHeight || birdBottom > topHeight+gap)) {
+            endGame();
+        }
+
+        if(!topPipe.scored && pipeX < 80) {
+            score++;
+            topPipe.scored = true;
+            scoreText.textContent = score;
+
+            if(score > 0 && score % 10 === 0) {
+                pipeSpeed += pipeSpeedIncrement;
+                currentLevel++;
+                levelText.textContent = `Seviye ${currentLevel}`;
+            }
+        }
+
+        if(pipeX < -60) {
+            topPipe.remove();
+            bottomPipe.remove();
+            clearInterval(move);
+        }
+    }, 10);
+}
+
+function updateGame() {
+    velocity += gravity;
+    birdY += velocity;
+
+    if(birdY < 0) birdY = 0;
+    if(birdY > 674) endGame(); 
+
+    let rotation = Math.min(Math.max(velocity * 2.5, -30), 55); 
+    
+    if(selectedShape === "heart") bird.style.transform = `rotate(${rotation - 45}deg)`;
+    else if(selectedShape === "triangle") bird.style.transform = `rotate(${rotation}deg)`;
+    else bird.style.transform = `translateY(0) rotate(${rotation}deg)`;
+    
+    bird.style.top = birdY + "px";
+}
+
+function endGame() {
+    clearInterval(gameInterval);
+    clearInterval(pipeInterval);
+    document.getElementById("game").style.display = "none";
+    document.getElementById("finalScore").textContent = `Skorunuz: ${score} (Seviye ${currentLevel})`;
+    document.getElementById("gameOverScreen").style.display = "flex";
+}
+</script>
+</body>
+</html>
